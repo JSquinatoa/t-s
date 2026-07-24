@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-todo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: app-todo
+  template:
+    metadata:
+      labels:
+        app: app-todo
+    spec:
+      containers:
+        - name: app-todo
+          # Recuerda poner aquí tu usuario real de Docker Hub todo en minúsculas
+          image: johnquinatoa/app-todo:latest
+          ports:
+            - containerPort: 8080
+          env:
+            # Aplastamos las propiedades locales para usar los nombres de los servicios de K8s
+            - name: QUARKUS_DATASOURCE_JDBC_URL
+              value: "jdbc:postgresql://postgres:5432/todo"
+            - name: CONSUL_HOST
+              value: "consul"
+            - name: CONSUL_PORT
+              value: "8500"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-todo
+spec:
+  type: ClusterIP
+  selector:
+    app: app-todo
+  ports:
+    - port: 8080
+      targetPort: 8080

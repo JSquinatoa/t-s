@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: traefik-ingress
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: traefik
+                port:
+                  number: 80
+---
+# Si tu profesor evalúa en OpenShift, esto es lo que él llama una "Route"
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: traefik-route
+spec:
+  to:
+    kind: Service
+    name: traefik
+  port:
+    targetPort: http
+  tls:
+    termination: edge
